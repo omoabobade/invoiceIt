@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+
 
 const Main = props=>
   <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-4"> 
