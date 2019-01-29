@@ -1,36 +1,42 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import InvoiceLineItems from '../reusables/InvoiceLineItems.jsx';
-
+import ImageUploader from '../reusables/ImageUploader.jsx';
+import {connect} from 'react-redux';
 
 class InvoiceAdd extends React.Component{
     constructor(props){
         super(props)
-        this.state = {items:[{item:"",quantity:0.00, rate: 0.00}]}
-    }
+        if(this.props.item === ""){
+            this.state = {items:[{item:"",quantity:0.00, rate: 0.00}]}
+        }else{
+            this.state = this.props;
+        }
 
-    componentDidMount(){
-        
     }
 
     addItems = ()=>{
         let items = this.state.items;
         items.push({item:"",quantity:0.00, rate: 0.00});
         this.setState({items});
+        this.props.dispatchState(this.state);
     }
+
     removeItem = (i)=>{
         let items = this.state.items;
         items.splice(i,1);
         this.setState({items});
+        this.props.dispatchState(this.state);
     }
 
-    lineItemInputChange = event=> i=>{
+    lineItemInputChange = i=> event=>{
         let items = this.state.items;
         let item = items[i];
         item[event.target.id] = event.target.value;
         items[i] = item;
         this.setState({items});
         console.log(this.state)
+        this.props.dispatchState(this.state);
     }
 
     inputChange = event => {
@@ -38,48 +44,57 @@ class InvoiceAdd extends React.Component{
             [[event.target.id]]  : event.target.value
         });
         console.log(this.state)
+        this.props.dispatchState(this.state);
+    }
+
+    processFile = event => {
+        let files = event.target.files;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            if (!file.type.startsWith('image/')){ continue }
+
+            const reader = new FileReader();
+            reader.onload = (e) =>{ this.setState({source:e.target.result})};
+            reader.readAsDataURL(file);
+        }
+        this.props.dispatchState(this.state);
     }
 
     render(){
         return (
                 <div  className="col-md-12">
                     <div  className="row">
-                        <div  className="col-md-2 themed-grid-col">
-                            <img src="https://via.placeholder.com/150"  className="rounded float-left" width="100%"  />
-                            <div  className="custom-file">
-                                <input type="file"  className="custom-file-input" id="customFile" />
-                                <label  className="custom-file-label" htmlFor="customFile">Choose file</label>
-                            </div>
-                        </div>
+                        <ImageUploader processFile={this.processFile} source={this.state.source}/>
                         <div  className="col-md-6 themed-grid-col">
                             <div className="form-group row">
                                 <label htmlFor="colFormLabel"  className="col-sm-2 col-form-label">From</label>
                                 <div  className="col-sm-9">
-                                    <input type="text" className="form-control" id="invoiceFrom" onChange={this.inputChange} aria-describedby="from" placeholder="From" />
+                                    <input type="text" className="form-control" defaultValue={this.state.invoiceFrom} id="invoiceFrom" onChange={this.inputChange} aria-describedby="from" placeholder="From" />
                                 </div>
                             </div>
                             <div className="form-group row">
                                 <label htmlFor="colFormLabel"  className="col-sm-2 col-form-label">To</label>
                                 <div  className="col-sm-9">
-                                    <input type="text" className="form-control" id="invoiceTo" onChange={this.inputChange} aria-describedby="to" placeholder="To" />
+                                    <input type="text" className="form-control" id="invoiceTo" defaultValue={this.state.invoiceTo} onChange={this.inputChange} aria-describedby="to" placeholder="To" />
                                 </div>
                             </div>
                             <div className="form-group row">
                                 <label htmlFor="colFormLabel"  className="col-sm-2 col-form-label">Payment Terms</label>
                                 <div  className="col-sm-9">
-                                    <input type="text" className="form-control" id="paymentTerms" onChange={this.inputChange} aria-describedby="to" placeholder="Payment Terms" />
+                                    <input type="text" className="form-control" id="paymentTerms" defaultValue={this.state.paymentTerms} onChange={this.inputChange} aria-describedby="to" placeholder="Payment Terms" />
                                 </div>
                             </div>
                         </div>
                         <div  className="col-md-3 themed-grid-col">
                             <div className="form-group row">
-                                <input type="text" className="form-control" id="invoiceno" onChange={this.inputChange} aria-describedby="invoiceNo" placeholder="Invoice No" />
+                                <input type="text" className="form-control" id="invoiceno" defaultValue={this.state.invoiceno} onChange={this.inputChange} aria-describedby="invoiceNo" placeholder="Invoice No" />
                             </div>
                             <div className="form-group row">
-                                <input type="date" className="form-control" id="invoiceDate" onChange={this.inputChange} aria-describedby="date" placeholder="Date" /> 
+                                <input type="date" className="form-control" id="invoiceDate"  defaultValue={this.state.invoiceDate} onChange={this.inputChange} aria-describedby="date" placeholder="Date" /> 
                             </div>
                             <div className="form-group row">
-                                <input type="date" className="form-control" id="dueDate" onChange={this.inputChange} aria-describedby="to" placeholder="Due Date" />
+                                <input type="date" className="form-control" id="dueDate" defaultValue={this.state.dueDate} onChange={this.inputChange} aria-describedby="to" placeholder="Due Date" />
                             </div>
                         </div>
                     </div>
@@ -91,4 +106,16 @@ class InvoiceAdd extends React.Component{
     
 }
 
-export default InvoiceAdd 
+function mapStateToProps(state) {
+    return state.invoiceReducer;
+}
+
+function mapDispatchToProps(dispatch) {
+    return{
+        dispatchState(state){
+            dispatch({type: "UPDATE_INVOICE_STATE", data:state});
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(InvoiceAdd) 
