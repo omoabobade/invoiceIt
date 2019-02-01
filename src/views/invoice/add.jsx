@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import InvoiceLineItems from '../reusables/InvoiceLineItems.jsx';
 import ImageUploader from '../reusables/ImageUploader.jsx';
 import {connect} from 'react-redux';
+import Currencies from "../reusables/Currency.jsx"
+
 
 class InvoiceAdd extends React.Component{
     constructor(props){
@@ -61,6 +63,36 @@ class InvoiceAdd extends React.Component{
         this.props.dispatchState(this.state);
     }
 
+    calculateAmount(){
+        let recursiveAmount = 0.00;
+        const amount = 0.00;
+        const discountedAmount = 0.00;
+        const taxAmount = 0.00;
+        const totalAmount = 0.00
+
+
+        this.state.items.map((item)=> recursiveAmount += item.quantity*item.rate )
+        if(this.state.shipping){
+            amount = recursiveAmount + shipping
+        }else{
+            amount = recursiveAmount;
+        }
+        if(this.state.discount && this.state.isflatdiscount){
+            amount -= this.state.discount
+        }else if(this.state.discount && !this.state.isflatdiscount){
+            discountedAmount = amount*(this.state.discount/100)
+        }
+
+        if(this.state.tax && this.state.isflattax){
+            amount -= this.state.tax
+        } else if(this.state.tax && !this.state.isflattax){
+            taxAmount = amount*(this.state.tax/100)
+        }
+
+        totalAmount = amount - taxAmount - discountedAmount
+        this.setState({totalAmount});
+        
+    }
     render(){
         return (
                 <div  className="col-md-12">
@@ -98,7 +130,22 @@ class InvoiceAdd extends React.Component{
                             </div>
                         </div>
                     </div>
-                    <h4>Invoice Items</h4>
+                    <h4>Invoice Items</h4> 
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="dropdown">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Currency
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                { 
+                                    Currencies.map((currency)=>
+                                        <a class="dropdown-item" href="#">{currency}</a>
+                                    )
+                                }
+                            </div>
+                        </div>
+                    </div>
                     <InvoiceLineItems addItems={()=>this.addItems} removeItem={()=>this.removeItem} items={this.state.items} inputChange={this.inputChange} lineItemInputChange={this.lineItemInputChange}  />
                 </div>
             )

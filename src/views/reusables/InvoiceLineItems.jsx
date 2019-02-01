@@ -34,8 +34,8 @@ const InvoiceLineItems = (props)=>{
                             <button type="button" className="btn btn-primary btn-sm" onClick={props.addItems()}>add line item</button>
                         </div>
                         <div  className="row">
-                            <div  className="col-md-8">&nbsp;</div>
-                            <div  className="col-md-4 order-md-2 mb-4">
+                            <div  className="col-md-7">&nbsp;</div>
+                            <div  className="col-md-5 order-md-2 mb-4">
                                     <ul  className="list-group mb-3">
                                         <li  className="list-group-item d-flex justify-content-between lh-condensed">
                                         <div>
