@@ -3,14 +3,15 @@ import { Link } from 'react-router-dom';
 import InvoiceLineItems from '../reusables/InvoiceLineItems.jsx';
 import ImageUploader from '../reusables/ImageUploader.jsx';
 import {connect} from 'react-redux';
-import Currencies from "../reusables/Currency.jsx"
+import {Currencies} from "../reusables/Currency.jsx"
+import Modal from "../reusables/Modal.jsx"
 
 
 class InvoiceAdd extends React.Component{
     constructor(props){
         super(props)
-        if(this.props.item === ""){
-            this.state = {items:[{item:"",quantity:0.00, rate: 0.00}]}
+        if(typeof this.props.item === "undefined"){
+            this.state = {items:[{item:"",quantity:0.00, rate: 0.00}], showCurrency:false}
         }else{
             this.state = this.props;
         }
@@ -91,14 +92,19 @@ class InvoiceAdd extends React.Component{
 
         totalAmount = amount - taxAmount - discountedAmount
         this.setState({totalAmount});
-        
     }
+
+    setCurrency = event =>currency =>{
+        this.setState({currency, showCurrency:false})
+    }
+
     render(){
+       
         return (
-                <div  className="col-md-12">
-                    <div  className="row">
+                <div className="col-md-12">
+                    <div className="row">
                         <ImageUploader processFile={this.processFile} source={this.state.source}/>
-                        <div  className="col-md-6 themed-grid-col">
+                        <div className="col-md-6 themed-grid-col">
                             <div className="form-group row">
                                 <label htmlFor="colFormLabel"  className="col-sm-2 col-form-label">From</label>
                                 <div  className="col-sm-9">
@@ -130,23 +136,26 @@ class InvoiceAdd extends React.Component{
                             </div>
                         </div>
                     </div>
-                    <h4>Invoice Items</h4> 
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="dropdown">
-                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Currency
-                            </a>
-
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                { 
-                                    Currencies.map((currency)=>
-                                        <a class="dropdown-item" href="#">{currency}</a>
-                                    )
-                                }
+                    <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 className="h2">Invoice Items</h1> 
+                        <div className="btn-toolbar mb-2 mb-md-0">
+                            <div className="dropdown">
+                                <button className="btn btn-secondary dropdown-toggle" onClick={()=>this.setState({showCurrency: !this.state.showCurrency})} id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+                                    Currency
+                                </button>
                             </div>
                         </div>
                     </div>
                     <InvoiceLineItems addItems={()=>this.addItems} removeItem={()=>this.removeItem} items={this.state.items} inputChange={this.inputChange} lineItemInputChange={this.lineItemInputChange}  />
+                    <Modal show={this.state.showCurrency} hideModal={()=>this.setState({showCurrency:false})}>
+                        <div class="list-group">
+                            {
+                                Object.values(Currencies).map(
+                                    ({symbol, name, symbol_native, decimal_digits, rounding, code, name_plural})=><a className="list-group-item list-group-item-action" href="#" onClick={this.setCurrency(code)}>{name} {" "} {symbol}</a>
+                                )
+                            }
+                        </div>
+                    </Modal>
                 </div>
             )
         }

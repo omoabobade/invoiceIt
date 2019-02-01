@@ -1,4 +1,4 @@
-const Currencies = {
+export const Currencies =  {
     "USD": {
         "symbol": "$",
         "name": "US Dollar",
@@ -1062,5 +1062,3 @@ const Currencies = {
         "name_plural": "Zambian kwachas"
     }
 }
-
-export default Currencies
